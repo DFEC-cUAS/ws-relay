@@ -10,15 +10,15 @@ ffmpeg -re -i v01.mp4 -s 1280x720 -c:v mjpeg -qscale:v 2 -f image2pipe - | ./ws-
 package main
 
 import (
-	"net/http"
-	"log"
-	"flag"
 	"errors"
+	"flag"
+	"log"
+	"net/http"
 
-	"encoding/binary"
-	"io"
 	"bufio"
 	"bytes"
+	"encoding/binary"
+	"io"
 	"os"
 
 	ws "github.com/gorilla/websocket"
@@ -33,7 +33,7 @@ var queue = flag.Int("q", 1, "ws queue")
 
 var split = flag.String("s", "jpg", "image type")
 
-var upgrader = ws.Upgrader{ EnableCompression: false } // use default options
+var upgrader = ws.Upgrader{EnableCompression: false} // use default options
 
 var newclients chan *WsClient
 var bufCh chan []byte
@@ -41,18 +41,19 @@ var bufCh chan []byte
 type WsClient struct {
 	*ws.Conn
 	data chan []byte
-	die bool
+	die  bool
 }
-func NewWsClient(c *ws.Conn) (*WsClient) {
-	return &WsClient{ c, make(chan []byte, *queue), false }
+
+func NewWsClient(c *ws.Conn) *WsClient {
+	return &WsClient{c, make(chan []byte, *queue), false}
 }
-func (c *WsClient) Send(buf []byte) (error) {
+func (c *WsClient) Send(buf []byte) error {
 	if c.die {
 		return errors.New("ws connection die")
 	}
 
 	select {
-	case <- c.data:
+	case <-c.data:
 	default:
 	}
 	c.data <- buf
@@ -61,7 +62,7 @@ func (c *WsClient) Send(buf []byte) (error) {
 }
 func (c *WsClient) worker() {
 	for {
-		buf := <- c.data
+		buf := <-c.data
 		//Vln(5, "[dbg]worker()", &c, len(buf))
 		err := c.WriteMessage(ws.BinaryMessage, buf)
 		if err != nil {
@@ -76,7 +77,7 @@ func broacast() {
 	clients := make(map[*WsClient]*WsClient, 0)
 
 	for {
-		data := <- bufCh
+		data := <-bufCh
 		//Vln(5, "[dbg]broacast()", len(data))
 		for _, c := range clients {
 			err := c.Send(data)
@@ -111,7 +112,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	log.SetFlags(log.Ldate|log.Ltime)
+	log.SetFlags(log.Ldate | log.Ltime)
 	flag.Parse()
 
 	upgrader.EnableCompression = *wsComp
@@ -135,7 +136,7 @@ func main() {
 }
 
 func connCam() {
-	markMap := map[string](func (r *bufio.Reader, buf []byte) (int, error)){
+	markMap := map[string](func(r *bufio.Reader, buf []byte) (int, error)){
 		"jpg": readJPG,
 		"png": readPNG,
 	}
@@ -213,7 +214,7 @@ func readPNG(r *bufio.Reader, buf []byte) (int, error) {
 	}
 }
 
-func readPNGChunk(r io.Reader, buf []byte) (int, []byte, error){
+func readPNGChunk(r io.Reader, buf []byte) (int, []byte, error) {
 	if n, err := io.ReadFull(r, buf[:4]); err != nil { //chunk data length
 		return n, nil, err
 	}
@@ -221,17 +222,17 @@ func readPNGChunk(r io.Reader, buf []byte) (int, []byte, error){
 
 	n, err := io.ReadFull(r, buf[4:4+4]) // chunk type
 	if err != nil {
-		return n+4, nil, err
+		return n + 4, nil, err
 	}
-	chunkType := buf[4:4+4]
+	chunkType := buf[4 : 4+4]
 
 	n, err = io.ReadFull(r, buf[4+4:dataLen+4]) // chunk data & CRC
 	if err != nil {
-		return n+8, chunkType, err
+		return n + 8, chunkType, err
 	}
 	//Vln(6, "ReadPipe:", dataLen, string(chunkType))
 
-	return n+8, chunkType, nil
+	return n + 8, chunkType, nil
 }
 
 func Vln(level int, v ...interface{}) {
@@ -244,4 +245,3 @@ func Vf(level int, format string, v ...interface{}) {
 		log.Printf(format, v...)
 	}
 }
-
