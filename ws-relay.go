@@ -33,7 +33,12 @@ var queue = flag.Int("q", 1, "ws queue")
 
 var split = flag.String("s", "jpg", "image type")
 
-var upgrader = ws.Upgrader{EnableCompression: false} // use default options
+func alwaysTrue(r *http.Request) bool {
+	return true
+}
+
+var upgrader = ws.Upgrader{CheckOrigin: alwaysTrue,
+	EnableCompression: false} // use default options
 
 var newclients chan *WsClient
 var bufCh chan []byte

@@ -2,17 +2,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const img = document.querySelector('#screen');
     const urlCreator = window.URL || window.webkitURL;
-    const createObjectURL = urlCreator.createObjectURL;
-    const revokeObjectURL = urlCreator.revokeObjectURL;
 
     let lastFrame = null;
     const updateFrame = function () {
-        img.src = createObjectURL(lastFrame);
+        img.src = urlCreator.createObjectURL(lastFrame);
         lastFrame = null;
     }
 
     img.onload = function () {
-        revokeObjectURL(img.src);
+        urlCreator.revokeObjectURL(img.src);
     };
 
     const ws = new WebSocket('ws://' + window.location.host + '/ws');
