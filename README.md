@@ -5,7 +5,7 @@ This is a simple example show up how to streaming video from ffmpeg by broadcast
 ## Build
 
 1. install go: [golang](https://golang.org/dl/)
-2. clone this repo : `git clone https://github.com/cs8425/ffmpeg-ws-relay.git`
+2. clone this repo : `git clone https://github.com/geoffreycs/ffmpeg-ws-relay-modernized`
 3. build: `go build -o ws-relay ws-relay.go`
 4. run with ffmpeg, see [Usage example](#usage-example)
 5. open browser to: [http://127.0.0.1:8080/](http://127.0.0.1:8080/)
