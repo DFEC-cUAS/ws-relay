@@ -1,4 +1,4 @@
-module github.com/cs8425/ffmpeg-ws-relay
+module github.com/DFEC-cUAS/ws-relay
 
 go 1.12
 
